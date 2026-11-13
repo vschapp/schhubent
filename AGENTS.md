@@ -28,3 +28,7 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Imported School Hub backend lives in src/server/backend and runs through src/server/appdeploy-sdk.ts (AppDeploy SDK shim over Supabase `app_documents` + `app_transact` RPC + `app-files` bucket), served by src/routes/api/$.ts. Why: preserves the original business logic unchanged.
+- Imported screens live in src/legacy and call /api via src/lib/appdeploy-client.ts with the Supabase session token. Why: drop-in replacement for @appdeploy/client.

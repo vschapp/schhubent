@@ -1,0 +1,10 @@
+[
+ {"capability":"code/screens","source":"AppDeploy React app","outcome":"migrate","status":"verified","next_action":null},
+ {"capability":"server API (130 routes)","source":"@appdeploy/sdk router","outcome":"migrate via compatibility layer at /api/*","status":"verified","next_action":null},
+ {"capability":"database","source":"AppDeploy document db","outcome":"Supabase app_documents + app_transact","status":"verified","next_action":null},
+ {"capability":"records","source":"AppDeploy","outcome":"migrate","status":"pending","next_action":"user to export existing records"},
+ {"capability":"auth/users","source":"AppDeploy auth","outcome":"Supabase email/password","status":"partial","next_action":"existing users must sign up again; user export pending"},
+ {"capability":"admissions documents storage","source":"AppDeploy storage","outcome":"Supabase bucket app-files","status":"implemented-unverified","next_action":"file bytes from old app pending"},
+ {"capability":"hourly workflow escalation cron","source":"cron.json","outcome":"not scheduled","status":"pending","next_action":"add scheduled job"},
+ {"capability":"realtime push","source":"AppDeploy ws","outcome":"no-op","status":"pending","next_action":"optional"}
+]
