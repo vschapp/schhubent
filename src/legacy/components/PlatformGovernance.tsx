@@ -65,9 +65,17 @@ export default function PlatformGovernance() {
     setBusy(true); setFailure(''); setMessage('');
     try {
       const payload: any = { type, name, parentId: parentId || null };
-      if (type === 'school') payload.schoolId = schoolId;
+      if (type === 'school') {
+        let sid = schoolId;
+        if (sid === '__new') {
+          const created = await api.post('/api/platform/schools?tenantId=' + encodeURIComponent(tenantId), { name: name.trim() });
+          sid = created.data.school.id;
+        }
+        payload.schoolId = sid;
+        if (!payload.name) payload.name = schools.find(s => s.id === sid)?.name || name.trim();
+      }
       await api.post('/api/platform/organisation-nodes?tenantId=' + encodeURIComponent(tenantId), payload);
-      setName(''); setMessage('Organisation hierarchy record created.'); await load();
+      setName(''); if (schoolId === '__new') setSchoolId(''); setMessage('Organisation hierarchy record created.'); await load();
     } catch (err: any) { setFailure(apiErrorMessage(err, 'Could not create the organisation node.')); }
     finally { setBusy(false); }
   }
@@ -129,7 +137,7 @@ export default function PlatformGovernance() {
     <section className='panel config-category'><div className='panel-head'><div><h2><Network size={17}/> Organisation hierarchy</h2><p>School records are linked from the existing school registry, not duplicated.</p></div></div>
       <form className='rpm-create' onSubmit={createNode}>
         <select value={type} onChange={e=>setType(e.target.value)}>{['educational_level','school','campus','branch','department','unit','location'].map(x=><option key={x} value={x}>{x.replace('_',' ')}</option>)}</select>
-        {type === 'school' ? <select value={schoolId} onChange={e=>setSchoolId(e.target.value)} required><option value=''>Select existing school</option>{schools.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select> : <input value={name} onChange={e=>setName(e.target.value)} placeholder='Name' minLength={2} maxLength={160} required/>}
+        {type === 'school' ? <><select value={schoolId} onChange={e=>setSchoolId(e.target.value)} required><option value=''>Select school</option><option value='__new'>+ Add a new school</option>{schools.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select>{schoolId === '__new' && <input value={name} onChange={e=>setName(e.target.value)} placeholder='New school name' minLength={2} maxLength={120} required/>}</> : <input value={name} onChange={e=>setName(e.target.value)} placeholder='Name' minLength={2} maxLength={160} required/>}
         <select value={parentId} onChange={e=>setParentId(e.target.value)}><option value='root'>Organisation root</option>{nodes.filter(n=>['organisation','school','campus','branch','department'].includes(n.type)).map(n=><option key={n.id} value={n.id}>{n.name} · {n.type}</option>)}</select>
         <button className='btn primary' disabled={busy}><Plus size={14}/> Add node</button>
       </form>
